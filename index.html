@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#2aa8ff" />
+  <title>皮可 3D 大冒險</title>
+  <link rel="icon" href="assets/hero_face.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="c"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <div class="hud-left">
+        <div class="lives"><img src="assets/hero_face.png" alt="" /><span>×</span><b id="hudLives">5</b></div>
+        <div class="hearts" id="hudHearts"></div>
+      </div>
+      <div class="hud-center">
+        <div class="gems" id="hudGems"></div>
+        <div class="bossbar hidden" id="bossBar"><span>咕嚕大王</span><div class="bossHp" id="bossHp"></div></div>
+      </div>
+      <div class="hud-right">
+        <div class="pill"><i class="coin-ico"></i><b id="hudCoins">0</b></div>
+        <div class="pill"><i class="clock-ico">⏱</i><b id="hudTime">300</b></div>
+        <div class="pill score"><b id="hudScore">0</b></div>
+      </div>
+    </div>
+    <button id="btnPause" class="hidden" aria-label="暫停">❚❚</button>
+
+    <!-- 觸控 -->
+    <div id="touch" class="hidden">
+      <div id="stickZone"></div>
+      <div id="stickBase"><div id="stickKnob"></div></div>
+      <button id="btnCamL" class="tbtn cam">⟲</button>
+      <button id="btnCamR" class="tbtn cam">⟳</button>
+      <button id="btnRun" class="tbtn run">衝</button>
+      <button id="btnJump" class="tbtn jump">跳</button>
+    </div>
+
+    <div id="banner"></div>
+    <div id="toast"></div>
+
+    <!-- 標題畫面 -->
+    <section id="scrTitle" class="screen show">
+      <div class="title-bg"></div>
+      <div class="logo">
+        <div class="logo-main">皮可<span>3D</span>大冒險</div>
+        <div class="logo-sub">PICO'S 3D ADVENTURE</div>
+      </div>
+      <div class="title-menu">
+        <button class="btn big" data-act="start">▶ 開始冒險</button>
+        <button class="btn" data-act="howto">操作說明</button>
+      </div>
+      <div class="press">按 Enter 或點擊按鈕開始</div>
+    </section>
+
+    <!-- 操作說明 -->
+    <section id="scrHow" class="screen">
+      <div class="panel">
+        <h2>操作說明</h2>
+        <div class="how-grid">
+          <div>
+            <h3>⌨️ 電腦鍵盤</h3>
+            <p><kbd>W A S D</kbd> / <kbd>方向鍵</kbd> 移動</p>
+            <p><kbd>空白鍵</kbd> / <kbd>K</kbd> 跳躍（按住跳更高）</p>
+            <p><kbd>Shift</kbd> / <kbd>J</kbd> 奔跑</p>
+            <p><kbd>Q</kbd> <kbd>E</kbd> 旋轉鏡頭</p>
+            <p><kbd>Esc</kbd> / <kbd>P</kbd> 暫停</p>
+            <p>🎮 也支援手把</p>
+          </div>
+          <div>
+            <h3>📱 手機（請橫放）</h3>
+            <p>左半邊拖曳：虛擬搖桿（推到底自動奔跑）</p>
+            <p>「跳」按鈕：跳躍</p>
+            <p>「衝」按鈕：奔跑</p>
+            <p>⟲ ⟳：旋轉鏡頭</p>
+          </div>
+          <div>
+            <h3>⭐ 冒險小提示</h3>
+            <p>從上方踩扁敵人！刺刺球不能踩。</p>
+            <p>從下方頂 ★ 方塊會出現金幣或道具。</p>
+            <p>彩虹羽毛：空中再跳一次＋按住滑翔。</p>
+            <p>每關藏著 3 顆綠色星星寶石。</p>
+            <p>跳上終點旗桿，越高分數越多！</p>
+          </div>
+        </div>
+        <button class="btn" data-act="back">返回</button>
+      </div>
+    </section>
+
+    <!-- 關卡地圖 -->
+    <section id="scrMap" class="screen">
+      <div class="map-top">
+        <button class="btn small" data-act="toTitle">◀ 標題</button>
+        <h2>選擇冒險關卡</h2>
+        <div class="map-stats"><span id="mapGems">★ 0/15</span></div>
+      </div>
+      <div class="cards" id="cards"></div>
+      <div class="map-info" id="mapInfo"></div>
+      <img class="map-hero" src="assets/hero_cut.png" alt="" />
+    </section>
+
+    <!-- 暫停 -->
+    <section id="scrPause" class="screen dim">
+      <div class="panel small-panel">
+        <h2>暫停</h2>
+        <button class="btn" data-act="resume">▶ 繼續</button>
+        <button class="btn" data-act="restart">↻ 重新開始</button>
+        <button class="btn" data-act="toMap">🗺 回到地圖</button>
+        <div class="toggles">
+          <button class="btn small" data-act="music" id="tglMusic">音樂：開</button>
+          <button class="btn small" data-act="sfx" id="tglSfx">音效：開</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 過關 -->
+    <section id="scrClear" class="screen dim">
+      <div class="panel small-panel">
+        <h2 class="clear-title">關卡完成！</h2>
+        <div class="result" id="clearResult"></div>
+        <button class="btn" data-act="next" id="btnNext">下一關 ▶</button>
+        <button class="btn" data-act="toMap">🗺 回到地圖</button>
+      </div>
+    </section>
+
+    <!-- Game Over -->
+    <section id="scrOver" class="screen dim">
+      <div class="panel small-panel">
+        <h2 class="over-title">GAME OVER</h2>
+        <p>別灰心！皮可還想再挑戰一次！</p>
+        <button class="btn" data-act="retry">↻ 再試一次</button>
+        <button class="btn" data-act="toMap">🗺 回到地圖</button>
+      </div>
+    </section>
+
+    <!-- 結局 -->
+    <section id="scrEnding" class="screen">
+      <div class="ending-bg"></div>
+      <div class="ending-box">
+        <h2>🎉 恭喜通關！🎉</h2>
+        <p>皮可打敗了咕嚕大王，找回了彩虹大星星！<br />王國再次充滿了歡笑與陽光。</p>
+        <div class="result" id="endResult"></div>
+        <button class="btn" data-act="toTitle">回到標題</button>
+      </div>
+    </section>
+
+    <div id="rotate"><div class="phone">📱</div><p>請將手機橫放來遊玩</p></div>
+    <div id="loading" class="hidden"><div class="spinner"></div><p>載入中…</p></div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

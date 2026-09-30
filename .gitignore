@@ -1,0 +1,5 @@
+# H站原始 PNG（約 35MB），遊戲實際使用的是 assets/ 裡壓縮過的 JPG/PNG
+assets/source/
+node_modules/
+.DS_Store
+Thumbs.db
